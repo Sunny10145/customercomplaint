@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ekkaa Electronics - Partcode Creation System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(to bottom, #e6f0fa, #d1e8ff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100%;
+      background: linear-gradient(135deg, #e6f3ff, #b3d9ff);
+    }
+
+    .login-box {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      border: 1px solid #e0e0e0;
+      width: 340px;
+      background: linear-gradient(135deg, #f7f9fc, #eef2f7);
+    }
+
+    .login-box h1 {
+      text-align: center;
+      color: #1a3c5e;
+      margin-bottom: 30px;
+      font-size: 1.7em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.95em;
+      background: #fff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-box input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+      outline: none;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .login-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 123, 255, 0.5);
+    }
+
+    .content-wrapper {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background: linear-gradient(45deg, #007bff, #004085);
+    }
+
+    .form-container,
+    .data-container {
+      padding: 0;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, right 0.3s ease;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #87CEEB #f5f5f5;
+    }
+
+    .form-container::-webkit-scrollbar,
+    .data-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .form-container::-webkit-scrollbar-track,
+    .data-container::-webkit-scrollbar-track {
+      background: #f5f5f5;
+      border-radius: 0;
+    }
+
+    .form-container::-webkit-scrollbar-thumb,
+    .data-container::-webkit-scrollbar-thumb {
+      background: #87CEEB;
+      border-radius: 0;
+      transition: background 0.3s ease;
+    }
+
+    .form-container::-webkit-scrollbar-thumb:hover,
+    .data-container::-webkit-scrollbar-thumb:hover {
+      background: #5eb8e5;
+    }
+
+    .form-container:hover,
+    .data-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .data-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      overflow-x: auto;
+      display: flex;
+      flex-direction: column;
+      border-bottom: none;
+      background: #fff;
+    }
+
+    .data-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      table-layout: auto;
+      border: 1px solid #e0e0e0;
+    }
+
+    .data-container thead {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: #f7f9fc;
+      border-bottom: 2px solid #007bff;
+    }
+
+    .data-container th {
+      padding: 12px;
+      text-align: center; /* Updated to center */
+      border: 1px solid #e0e0e0;
+      font-size: 0.95em;
+      color: #1a3c5e;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: inset  Draw New Card0 -1px 3px rgba(0, 0, 0, 0.05);
+      transition: background 0.3s ease;
+      background: #f7f9fc;
+    }
+
+    .data-container th:nth-child(1),
+    .data-container td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 5;
+      min-width: 150px;
+      border-right: none;
+      box-shadow: none;
+      background: #f7f9fc;
+      color: #1a3c5e;
+    }
+
+    .data-container th:nth-child(2),
+    .data-container td:nth-child(2) {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      min-width: 120px;
+      border-right: none;
+      box-shadow: none;
+      background: #f7f9fc;
+      color: #1a3c5e;
+    }
+
+    .data-container td {
+      padding: 12px;
+      text-align: center; /* Updated to center */
+      border: 1px solid #e0e0e0;
+      font-size: 0.9em;
+      word-break: break-word;
+      transition: background-color 0.3s ease;
+      max-height: 50px;
+      overflow: hidden;
+      position: relative;
+      background: #ffffff;
+      color: #333;
+    }
+
+    .data-container td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 3;
+      min-width: 150px;
+      background: #ffffff;
+      border-right: none;
+      box-shadow: none;
+      color: #333;
+    }
+
+    .data-container td:nth-child(2) {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      min-width: 120px;
+      background: #ffffff;
+      border-right: none;
+      box-shadow: none;
+      color: #333;
+    }
+
+    .rating-container label {
+      cursor: pointer;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .rating-container input[type="radio"] {
+      margin-right: 5px;
+    }
+
+    .data-container th:nth-child(3),
+    .data-container td:nth-child(3) { min-width: 80px; }
+    .data-container th:nth-child(4),
+    .data-container td:nth-child(4) { min-width: 90px; }
+    .data-container th:nth-child(5),
+    .data-container td:nth-child(5) { min-width: 50px; }
+    .data-container th:nth-child(6),
+    .data-container td:nth-child(6) { min-width: 50px; }
+    .data-container th:nth-child(7),
+    .data-container td:nth-child(7) { min-width: 90px; }
+    .data-container th:nth-child(8),
+    .data-container td:nth-child(8) { min-width: 120px; }
+    .data-container th:nth-child(9),
+    .data-container td:nth-child(9) { min-width: 50px; }
+    .data-container th:nth-child(10),
+    .data-container td:nth-child(10) { min-width: 70px; }
+    .data-container th:nth-child(11),
+    .data-container td:nth-child(11) { min-width: 50px; }
+    .data-container th:nth-child(12),
+    .data-container td:nth-child(12) { min-width: 120px; }
+    .data-container th:nth-child(13),
+    .data-container td:nth-child(13) { min-width: 50px; }
+    .data-container th:nth-child(14),
+    .data-container td:nth-child(14) { min-width: 50px; }
+    .data-container th:nth-child(15),
+    .data-container td:nth-child(15) { min-width: 120px; }
+    .data-container th:nth-child(16),
+    .data-container td:nth-child(16) { min-width: 80px; }
+    .data-container th:nth-child(17),
+    .data-container td:nth-child(17) { min-width: 80px; }
+    .data-container th:nth-child(18),
+    .data-container td:nth-child(18) { min-width: 120px; }
+    .data-container th:nth-child(19),
+    .data-container td:nth-child(19) { min-width: 120px; }
+    .data-container th:nth-child(20),
+    .data-container Td:nth-child(20) { min-width: 80px; }
+
+    .data-container tr:hover {
+      background: #eef2f7;
+      cursor: pointer;
+    }
+
+    .form-container {
+      display: none;
+      position: absolute;
+      right: -100%;
+      width: 50%;
+      top: 0;
+      height: 100%;
+      z-index: 10;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #ffffff, #f7f9fc);
+      border-left: 2px solid #007bff;
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-container.active {
+      display: block;
+      right: 0;
+    }
+
+    .form-container h1 {
+      background: linear-gradient(45deg, #007bff, #004085);
+      padding: 15px;
+      color: white;
+      margin: 0;
+      border-radius: 0 0 12px 0;
+      text-align: center;
+      font-size: 1.6em;
+      letter-spacing: 1.5px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .truncate {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+    }
+
+    .read-more {
+      color: #007bff;
+      cursor: pointer;
+      font-size: 0.75em;
+      text-decoration: underline;
+    }
+
+    .read-more:hover {
+      color: #0056b3;
+    }
+
+    .filter-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding: 6px 20px;
+      flex-wrap: wrap;
+      width: 100%;
+      border-top: 1px solid #e0e0e0;
+      background: linear-gradient(45deg, #007bff, #004085);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .filter-container.scrolled {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    .search-group {
+      flex: 0 1 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto;
+      flex-wrap: nowrap;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .filter-group.scrolled {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      background: transparent;
+      padding: 8px 12px;
+      border-radius: 0;
+      box-shadow: none;
+      color: white;
+      margin-left: 10px;
+      align-self: flex-end;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .user-info.scrolled {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    .filter-container input {
+      padding: 8px;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      font-size: 0.85em;
+      background: rgba(255, 255, 255, 0.95);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      width: 200px;
+    }
+
+    .filter-container select {
+      flex: 0 1 auto;
+      min-width: 120px;
+      max-width: 150px;
+      padding: 8px;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      font-size: 0.85em;
+      background: rgba(255, 255, 255, 0.95);
+      transition: border-color 0.3s ease;
+    }
+
+    .filter-container input:focus,
+    .filter-container select:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+      outline: none;
+    }
+
+    .filter-container label {
+      margin-bottom: 0;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    .sort-btn {
+      background: rgba(255, 255, 255, 0.95);
+      color: #007bff;
+      border: 1px solid #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.3s ease;
+      flex: 0 1 auto;
+      min-width: 85px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .sort-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+    }
+
+    .sort-btn.active {
+      background: #28a745;
+      color: white;
+    }
+
+    .input-btn {
+      background: linear-gradient(45deg, #28a745, #1e7e34);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .input-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(40, 167, 69, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin: 0;
+      font-size: 1.6em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 0;
+    }
+
+    .header-text {
+      background: linear-gradient(45deg, #fff, #e0e0e0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #1a3c5e;
+      font-weight: 700;
+      font-size: 0.95em;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #007bff;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9em;
+      background: #f9fbff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1);
+    }
+
+    input[type="text"]:hover,
+    input[type="date"]:hover,
+    input[type="password"]:hover,
+    textarea:hover,
+    select:hover {
+      border-color: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    .page-select {
+      padding: 8px;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      font-size: 0.85em;
+      background: rgba(255, 255, 255, 0.95);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      min-width: 85px;
+      cursor: pointer;
+    }
+
+    .page-select:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="password"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .submit-btn {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.95em;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 123, 255, 0.5);
+    }
+
+    .submit-btn.cancel {
+      background: linear-gradient(45deg, #dc3545, #b71c1c);
+      margin-top: 10px;
+    }
+
+    .submit-btn.reset {
+      background: linear-gradient(45deg, #6c757d, #495057);
+      margin-top: 10px;
+    }
+
+    .loader {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+
+    .cssload-container-general {
+      animation: cssload-animball_two 1.15s infinite;
+      width: 43px;
+      height: 43px;
+    }
+
+    .cssload-internal {
+      width: 43px;
+      height: 43px;
+      position: absolute;
+    }
+
+    .cssload-ballcolor {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+    }
+
+    .cssload-ball_1,
+    .cssload-ball_2,
+    .cssload-ball_3,
+    .cssload-ball_4 {
+      position: absolute;
+      animation: cssload-animball_one 1.15s infinite ease;
+    }
+
+    .cssload-ball_1 { background-color: rgb(203, 32, 37); top: 0; left: 0; }
+    .cssload-ball_2 { background-color: rgb(248, 179, 52); top: 0; left: 23px; }
+    .cssload-ball_3 { background-color: rgb(0, 160, 150); top: 23px; left: 0; }
+    .cssload-ball_4 { background-color: rgb(151, 191, 13); top: 23px; left: 23px; }
+
+    @keyframes cssload-animball_one {
+      0% { position: absolute; }
+      50% { top: 12px; left: 12px; position: absolute; opacity: 0.5; }
+      100% { position: absolute; }
+    }
+
+    @keyframes cssload-animball_two {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(360deg) scale(1.3); }
+      100% { transform: rotate(720deg) scale(1); }
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #ffffff, #f0f4f8);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      width: 400px;
+      text-align: left;
+      border: none;
+      overflow: hidden;
+      animation: popupFadeIn 0.3s ease-in-out;
+      filter: none !important;
+      opacity: 1 !important;
+      color: #333;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+    }
+
+    .popup.success {
+      border-top: 5px solid #28a745;
+    }
+
+    .popup.error {
+      border-top: 5px solid #dc3545;
+    }
+
+    .popup h1 {
+      margin: 0 0 15px;
+      font-size: 1.5em;
+      color: #1a3c5e;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(45deg, #007bff, #1a3c5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-fill-color: transparent;
+    }
+
+    .popup p {
+      margin: 0 0 20px;
+      font-size: 1em;
+      color: #444;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px;
+      background: #f9fbfc;
+      border-radius: 8px;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .popup button {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+
+    .popup button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.6);
+      background: linear-gradient(45deg, #0056b3, #003f87);
+    }
+
+    @keyframes popupFadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .password-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #ffffff, #f0f4f8);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+      z-index: 1001;
+      width: 350px;
+      text-align: center;
+      border-top: 5px solid #007bff;
+      animation: popupFadeIn 0.3s ease-in-out;
+    }
+
+    .password-popup h2 {
+      margin: 0 0 20px;
+      font-size: 1.4em;
+      color: #1a3c5e;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: linear-gradient(45deg, #007bff, #1a3c5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .password-popup input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #007bff;
+      border-radius: 6px;
+      font-size: 0.9em;
+      background: #f9fbff;
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .password-popup input[type="password"]:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+      outline: none;
+    }
+
+    .password-popup .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .password-popup button {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+
+    .password-popup button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.6);
+      background: linear-gradient(45deg, #0056b3, #003f87);
+    }
+
+    .password-popup button.cancel {
+      background: linear-gradient(45deg, #dc3545, #b71c1c);
+    }
+
+    .password-popup button.cancel:hover {
+      background: linear-gradient(45deg, #b71c1c, #a3151a);
+    }
+
+    .action-btn {
+      padding: 4px 8px;
+      margin: 2px 4px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.65em;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn.view { background: linear-gradient(45deg, #0288d1, #0277bd); }
+    .action-btn.edit { background: linear-gradient(45deg, #43a047, #388e3c); }
+    .action-btn.delete { background: linear-gradient(45deg, #d32f2f, #c62828); }
+
+    .action-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .material-icons {
+      font-size: 13px;
+    }
+
+    .rows-per-page-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex: 0 1 auto;
+    }
+
+    .rows-per-page-group label {
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9em;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    .rows-per-page-group input {
+      padding: 8px;
+      border: 1px solid #fff;
+      border-radius: 6px;
+      font-size: 0.85em;
+      background: rgba(255, 255, 255, 0.95);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      width: 60px;
+      text-align: center;
+    }
+
+    .rows-per-page-group input:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+      outline: none;
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper { flex-direction: column; width: 100%; height: 100vh; }
+      .form-container, .data-container { width: 100%; }
+      .data-container { position: static; overflow-x: auto; }
+      .form-container { position: static; width: 100%; height: auto; margin-top: 0; }
+      .data-container table { width: 100%; }
+      .filter-container { flex-direction: column; align-items: center; justify-content: flex-start; padding: 6px 10px; }
+      .filter-container .search-group, .filter-container .filter-group, .filter-container .user-info { width: 100%; margin: 6px 0; align-items: center; }
+      .filter-group { flex-wrap: wrap; }
+      .user-info { position: static; margin-top: 10px; align-self: center; }
+      .filter-container input, .filter-container select { max-width: 100%; min-width: 0; }
+      .sort-btn { width: 100%; margin: 6px 0; }
+      .data-container th, .data-container td { font-size: 0.8em; padding: 8px; }
+      .header-container { flex-direction: column; align-items: center; padding: 10px; width: 100%; }
+      .input-btn { margin: 0 0 10px 0; }
+      .login-box { width: 90%; max-width: 320px; }
+      .action-btn { width: 20px; height: 20px; padding: 3px; margin: 2px; font-size: 0.55em; }
+      .password-popup { width: 90%; max-width: 300px; }
+      .page-select { width: 100%; margin: 6px 0; }
+      .rows-per-page-group { width: 100%; justify-content: center; }
+      .rows-per-page-group input { width: 100%; max-width: 60px; }
+    }
+
+    .header-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #007bff, #004085);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid #e0e0e0;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      justify-content: center;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .header-container.scrolled {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    .current-datetime,
+    .current-user {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 2px 0;
+      color: #fff;
+    }
+
+    .logout-btn {
+      background: linear-gradient(45deg, #d32f2f, #b71c1c);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+      margin-top: 4px;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(211, 47, 47, 0.5);
+    }
+
+    .remark-section {
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 1px solid #007bff;
+      border-radius: 6px;
+      background: #f9fbff;
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1);
+    }
+
+    .remark-section h3 {
+      margin: 0 0 10px;
+      color: #1a3c5e;
+      font-size: 1em;
+      font-weight: 600;
+    }
+
+    .popup .history-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9fbfc;
+      border-radius: 8px;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.95em;
+      color: #333;
+      border: 1px solid #e0e0e0;
+    }
+
+    .popup .history-section h3 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      color: #1a3c5e;
+      font-weight: 600;
+    }
+
+    .popup .history-section p {
+      margin: 8px 0;
+      font-size: 0.9em;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .popup .history-section .no-history {
+      color: #666;
+      font-style: italic;
+    }
+
+    .popup .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .whatsapp-link {
+      color: #25D366;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .whatsapp-link:hover {
+      color: #1EBE52;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container" id="loginContainer">
+    <div class="login-box">
+      <h1>Ekkaa Electronics Login</h1>
+      <input type="text" id="username" placeholder="User ID" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <div class="content-wrapper" id="contentWrapper">
+    <div class="data-container">
+      <div class="header-container">
+        <h1><span class="header-text">TV Customer Complaint</span></h1>
+      </div>
+      <div class="filter-container">
+        <button class="input-btn" onclick="toggleForm()">Input</button>
+        <div class="search-group">
+          <input type="text" id="searchInput" placeholder="Search records..." onkeyup="debouncedFilterTable()">
+        </div>
+        <div class="filter-group">
+          <button class="sort-btn" id="sortUniqueAscBtn" onclick="sortTable('unique', 'asc')">▲ UNIQUE_ID</button>
+          <button class="sort-btn" id="sortUniqueDescBtn" onclick="sortTable('unique', 'desc')">▼ UNIQUE_ID</button>
+          <button class="sort-btn" onclick="fetchData(true)"><i class="material-icons">refresh</i> Refresh</button>
+          <select class="page-select" id="pageSelect" onchange="goToPage(this.value)">
+            <option value="">Select Page</option>
+          </select>
+          <div class="rows-per-page-group">
+            <label for="rowsPerPage">Rows:</label>
+            <input type="number" id="rowsPerPage" min="1" value="100" onchange="updateRowsPerPage()">
+          </div>
+        </div>
+        <div class="user-info">
+          <span class="current-datetime" id="currentDateTime"></span>
+          <span class="current-user" id="currentUser"></span>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </div>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Date Time</th>
+            <th>UNIQUE_ID</th>
+            <th>Creation Date</th>
+            <th>Location</th>
+            <th>Party Name</th>
+            <th>Contact Person</th>
+            <th>Model No</th>
+            <th>Complaint</th>
+            <th>Serial Number</th>
+            <th>Mobile No</th>
+            <th>Action Taken</th>
+            <th>Additional Work</th>
+            <th>Closed WhatsApp</th>
+            <th>Performed By</th>
+            <th>Entry By</th>
+            <th>Sent WhatsApp</th>
+            <th>Actual</th>
+            <th>Rating</th>
+            <th>Comments</th>
+            <th>Feedback Form</th>
+            <th>Modify</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+      </table>
+    </div>
+    <div class="form-container" id="formContainer">
+      <h1><span class="header-text">Form</span></h1>
+      <form id="myForm" enctype="multipart/form-data" style="padding: 20px;">
+        <label for="creationDate">Creation Date:</label>
+        <input type="date" id="creationDate" name="creationDate" required>
+        <label for="location">Location:</label>
+        <select id="location" name="location" required>
+          <option value="">Select Location</option>
+          <option value="Kundli">Kundli</option>
+          <option value="Noida">Noida</option>
+        </select>
+        <label for="partyName">Party Name:</label>
+        <textarea id="partyName" name="partyName" rows="4" placeholder="Enter party name..." required></textarea>
+        <label for="contactPerson">Contact Person:</label>
+        <input type="text" id="contactPerson" name="contactPerson" placeholder="Enter contact person" required>
+        <label for="modelNo">Model No:</label>
+        <textarea id="modelNo" name="modelNo" rows="4" placeholder="Enter model number..." required></textarea>
+        <label for="complaint">Complaint:</label>
+        <textarea id="complaint" name="complaint" rows="4" placeholder="Enter complaint details..." required></textarea>
+        <label for="serialNumber">Serial Number:</label>
+        <textarea id="serialNumber" name="serialNumber" rows="4" placeholder="Enter serial number..." ></textarea>
+        <label for="mobileNo">Mobile No:</label>
+        <input type="text" id="mobileNo" name="mobileNo" placeholder="Enter mobile number" required pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number">
+        <label for="actionTaken">Action Taken:</label>
+        <textarea id="actionTaken" name="actionTaken" rows="4" placeholder="Enter action taken..." ></textarea>
+        <label for="additionalWork">Additional Work:</label>
+        <textarea id="additionalWork" name="additionalWork" rows="4" placeholder="Enter additional work..." ></textarea>
+        <label for="closedWhatsApp">Closed WhatsApp:</label>
+        <select id="closedWhatsApp" name="closedWhatsApp" required>
+          <option value="">Select Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Closed">Closed</option>
+        </select>
+        <label for="performedBy">Performed By:</label>
+        <select id="performedBy" name="performedBy" required>
+          <option value="">Select Person</option>
+          <option value="Sonu">Sonu</option>
+          <option value="Abhinandan Pandey">Abhinandan Pandey</option>
+          <option value="Mayank">Mayank</option>
+        </select>
+        <button type="submit" class="submit-btn" onclick="submitFormHandler(event)">Submit</button>
+        <button type="button" class="submit-btn cancel" onclick="toggleForm()">Cancel</button>
+        <button type="button" class="submit-btn reset" onclick="resetForm()">Reset</button>
+      </form>
+    </div>
+    <div class="loader" id="loader">
+      <div class="cssload-container-general">
+        <div class="cssload-internal"><div class="cssload-ballcolor cssload-ball_1"></div></div>
+        <div class="cssload-internal"><div class="cssload-ballcolor cssload-ball_2"></div></div>
+        <div class="cssload-internal"><div class="cssload-ballcolor cssload-ball_3"></div></div>
+        <div class="cssload-internal"><div class="cssload-ballcolor cssload-ball_4"></div></div>
+      </div>
+    </div>
+    <div class="popup" id="submissionPopup">
+      <h1 id="popupTitle" style="margin-bottom: 20px;"></h1>
+      <p id="popupMessage" style="max-height: 300px; overflow-y: auto; padding: 10px;"></p>
+      <div class="history-section" id="historySection" style="display: none; margin-top: 20px;">
+        <h3 style="margin-bottom: 10px;">Edit History</h3>
+        <div id="historyContent" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+      <div class="btn-group" style="margin-top: 20px;">
+        <button id="historyToggleBtn" onclick="toggleHistory()" style="display: none;">Show History</button>
+        <button onclick="closePopup()">Close</button>
+      </div>
+    </div>
+    <div class="password-popup" id="passwordPopup">
+      <h2 id="passwordPopupTitle">Enter Admin Password</h2>
+      <input type="password" id="passwordInput" placeholder="Password">
+      <div class="btn-group">
+        <button onclick="verifyPassword()">Submit</button>
+        <button class="cancel" onclick="closePasswordPopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const VALID_USERS = {
+    'Admin': '10145',
+    'Sonu': 'Sonu@366',
+    'Abhinandan': 'Abhi@123',
+    'user3': 'user3',
+    'user4': 'user4',
+    'user5': 'user5'
+  };
+  const SUBMIT_ALLOWED_USERS = ['Admin', 'Sonu', 'Abhinandan'];
+  let isLoggedIn = false;
+  let currentUser = '';
+  let rowsPerPage = 100;
+  let currentPage = 1;
+  let totalRows = 0;
+  let totalPages = 1;
+  let currentSortOrder = 'desc';
+  let currentSortColumn = 'unique';
+  let expandedCells = new Map();
+  let searchQuery = '';
+  let isInitialLoad = true;
+  const ADMIN_PASSWORDS = ['Admin', 'ekkaa@123', 'noida@123'];
+  let passwordCallback = null;
+  let currentUniqueId = '';
+
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const popup = document.getElementById('submissionPopup');
+    const popupTitle = document.getElementById('popupTitle');
+    const popupMessage = document.getElementById('popupMessage');
+
+    console.log('Login Attempt:', { username, password });
+
+    if (!username || !password) {
+      console.log('Missing credentials');
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popupMessage.innerText = 'Please enter both username and password';
+      popup.style.display = 'block';
+      return;
+    }
+
+    if (VALID_USERS[username] && VALID_USERS[username] === password) {
+      console.log('Login Successful for:', username);
+      isLoggedIn = true;
+      currentUser = username;
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('contentWrapper').style.display = 'flex';
+      fetchData(true);
+      if (!SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+        document.getElementById('toggleFormBtn').style.display = 'none';
+      }
+    } else {
+      console.log('Invalid credentials');
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popup.style.display = 'block';
+      return;
+    }
+  }
+
+  function logout() {
+    isLoggedIn = false;
+    currentUser = '';
+    document.getElementById('contentWrapper').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'flex';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+  }
+
+  function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatDateTime(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  }
+
+  function parseDate(isoDate) {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    return formatDate(date);
+  }
+
+  function parseDateTime(isoDate) {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    return formatDateTime(date);
+  }
+
+  function formatToISO(dateStr) {
+    if (!dateStr) return '';
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return dateStr;
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return '';
+  }
+
+  function generateWhatsAppLink(mobileNo, uniqueId, partyName, creationDate, contactPerson, modelNo, complaint, serialNumber, actionTaken, performedBy) {
+    if (!mobileNo || (typeof mobileNo !== 'string' && typeof mobileNo !== 'number')) return 'N/A';
+    const mobileStr = String(mobileNo);
+    const cleanedMobile = mobileStr.replace(/\D/g, '');
+    const formattedMobile = cleanedMobile.startsWith('+') ? cleanedMobile : `+91${cleanedMobile}`;
+
+    const formattedDate = creationDate ? parseDate(creationDate) : formatDate(new Date());
+
+    const message = `*Complaint Registered Successfully!*\n\n` +
+                    `*Dear ${contactPerson || 'Customer'},*\n` +
+                    `Thank you for reaching out to us. We want to inform you that your complaint has been registered successfully.\n` +
+                    `*Registered Details*\n` +
+                    `Query No. : ${uniqueId || 'N/A'}\n` +
+                    `Complain Date : ${formattedDate}\n` +
+                    `Contact Person : ${contactPerson || 'N/A'}\n` +
+                    `Model Number : ${modelNo || 'N/A'}\n` +
+                    `Complaint : ${complaint || 'N/A'}\n` +
+                    `Serial Number : ${serialNumber || 'N/A'}\n` +
+                    `Performed by : ${performedBy || 'N/A'}\n\n` +
+                    `Thank you for your patience and understanding!\n` +
+                    `*Best regards,*\n` +
+                    `*EKKAA ELECTRONICS INDIA PVT LTD*`;
+
+    const encodedMessage = encodeURIComponent(message);
+    return `
+      <div style="text-align: center;">
+        <a href="https://web.whatsapp.com/send?phone=${formattedMobile}&text=${encodedMessage}" class="whatsapp-link" target="_blank">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width: 32px; height: 32px; vertical-align: middle;">
+        </a>
+      </div>
+    `;
+  }
+
+  function generateFeedbackWhatsAppLink(mobileNo, uniqueId, partyName, creationDate, contactPerson, modelNo, complaint, serialNumber, actionTaken, performedBy) {
+    if (!mobileNo || (typeof mobileNo !== 'string' && typeof mobileNo !== 'number')) return 'N/A';
+    const mobileStr = String(mobileNo);
+    const cleanedMobile = mobileStr.replace(/\D/g, '');
+    const formattedMobile = cleanedMobile.startsWith('+') ? cleanedMobile : `+91${cleanedMobile}`;
+
+    const formattedDate = creationDate ? parseDate(creationDate) : formatDate(new Date());
+
+    const baseFeedbackFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc59zL-fWC284UTFtklQMvZygfs6H_FVKoLfwYY3eevXxqKHA/viewform?usp=pp_url';
+    const uniqueIdEntryId = 'entry.401897819';
+    const complaintEntryId = 'entry.1819820335';
+    const actionTakenEntryId = 'entry.401077421';
+
+    let feedbackFormUrl = `${baseFeedbackFormUrl}&${uniqueIdEntryId}=${encodeURIComponent(uniqueId || 'N/A')}`;
+    feedbackFormUrl += `&${complaintEntryId}=${encodeURIComponent(complaint || 'N/A')}`;
+    feedbackFormUrl += `&${actionTakenEntryId}=${encodeURIComponent(actionTaken || 'N/A')}`;
+
+    const message = `*We Value Your Feedback!*  
+*Dear ${contactPerson || 'Customer'},*  
+
+Thank you for choosing *EKKAA ELECTRONICS INDIA PVT LTD*. We are committed to delivering exceptional service and products, and your feedback helps us enhance your experience further.  
+
+*Complaint Details:*  
+- *Query No.:* ${uniqueId || 'N/A'}  
+- *Complain Date:* ${formattedDate}  
+- *Complaint:* ${complaint || 'N/A'}  
+- *Action Taken:* ${actionTaken || 'N/A'}  
+- *Performed By:* ${performedBy || 'N/A'}  
+
+Please take a moment to share your thoughts via the link below:  
+${feedbackFormUrl}  
+
+Thank you for your time and continued support!  
+
+*Best Regards,*  
+*EKKAA ELECTRONICS INDIA PVT LTD*`;
+
+    const encodedMessage = encodeURIComponent(message);
+    return `
+      <div style="text-align: center;">
+        <a href="https://web.whatsapp.com/send?phone=${formattedMobile}&text=${encodedMessage}" class="whatsapp-link" target="_blank">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width: 32px; height: 32px; vertical-align: middle;">
+        </a>
+      </div>
+    `;
+  }
+
+  function toggleForm() {
+    if (!isLoggedIn || !SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+      if (!SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+        showPopup('Admin', 'You do not have permission to submit or edit entries.');
+      }
+      return;
+    }
+    const formContainer = document.getElementById('formContainer');
+    const form = document.getElementById('myForm');
+
+    if (formContainer.classList.contains('active')) {
+      formContainer.classList.remove('active');
+      setTimeout(() => formContainer.style.display = 'none', 500);
+    } else {
+      formContainer.style.display = 'block';
+      setTimeout(() => formContainer.classList.add('active'), 10);
+    }
+
+    if (formContainer.style.display === 'none') {
+      form.reset();
+      form.dataset.uniqueId = '';
+    }
+
+    if (formContainer.style.display === 'block' && !form.dataset.uniqueId) {
+      document.getElementById('creationDate').value = new Date().toISOString().split('T')[0];
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('myForm').reset();
+    document.getElementById('creationDate').value = new Date().toISOString().split('T')[0];
+  }
+
+  function submitFormHandler(event) {
+    event.preventDefault();
+    if (!isLoggedIn || !SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+      showPopup('Admin', 'You do not have permission to submit or edit entries.');
+      return;
+    }
+
+    const loader = document.getElementById('loader');
+    const popup = document.getElementById('submissionPopup');
+    const popupTitle = document.getElementById('popupTitle');
+    const popupMessage = document.getElementById('popupMessage');
+
+    const creationDate = document.getElementById('creationDate').value;
+    const location = document.getElementById('location').value;
+    const partyName = document.getElementById('partyName').value;
+    const contactPerson = document.getElementById('contactPerson').value;
+    const modelNo = document.getElementById('modelNo').value;
+    const complaint = document.getElementById('complaint').value;
+    const serialNumber = document.getElementById('serialNumber').value;
+    const mobileNo = document.getElementById('mobileNo').value;
+    const actionTaken = document.getElementById('actionTaken').value;
+    const additionalWork = document.getElementById('additionalWork').value;
+    const closedWhatsApp = document.getElementById('closedWhatsApp').value;
+    const performedBy = document.getElementById('performedBy').value;
+
+    if (!creationDate || !location || !partyName || !contactPerson || !modelNo || !complaint || !mobileNo || !closedWhatsApp || !performedBy) {
+      loader.style.display = 'none';
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popupMessage.innerText = 'Please fill all required fields';
+      popup.style.display = 'block';
+      document.getElementById('historyToggleBtn').style.display = 'none';
+      return;
+    }
+
+    const mobileNoDigitsOnly = mobileNo.replace(/\D/g, '');
+    if (mobileNoDigitsOnly.length !== 10) {
+      loader.style.display = 'none';
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popupMessage.innerText = 'Please enter a correct 10-digit mobile number';
+      popup.style.display = 'block';
+      document.getElementById('historyToggleBtn').style.display = 'none';
+      return;
+    }
+
+    // Location restriction for Sonu and Abhinandan
+    if (currentUser === 'Sonu' && location.toLowerCase() !== 'kundli') {
+      loader.style.display = 'none';
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popupMessage.innerText = 'You can only submit/edit entries for Kundli location';
+      popup.style.display = 'block';
+      return;
+    }
+    if (currentUser === 'Abhinandan' && location.toLowerCase() !== 'noida') {
+      loader.style.display = 'none';
+      popup.className = 'popup error';
+      popupTitle.innerText = 'Admin';
+      popupMessage.innerText = 'You can only submit/edit entries for Noida location';
+      popup.style.display = 'block';
+      return;
+    }
+
+    loader.style.display = 'block';
+
+    const formData = {
+      creationDate: formatToISO(creationDate),
+      location,
+      partyName,
+      contactPerson,
+      modelNo,
+      complaint,
+      serialNumber,
+      mobileNo,
+      actionTaken,
+      additionalWork,
+      closedWhatsApp,
+      performedBy,
+      submittedBy: currentUser
+    };
+
+    const uniqueId = document.getElementById('myForm').dataset.uniqueId;
+    if (uniqueId) {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          loader.style.display = 'none';
+          popup.className = 'popup success';
+          popupTitle.innerText = 'Success!';
+          popupMessage.innerText = 'Entry Updated Successfully!';
+          popup.style.display = 'block';
+          document.getElementById('historyToggleBtn').style.display = 'none';
+          document.getElementById('myForm').reset();
+          document.getElementById('myForm').dataset.uniqueId = '';
+          toggleForm();
+          fetchData(true);
+        })
+        .withFailureHandler(function(error) {
+          loader.style.display = 'none';
+          popup.className = 'popup error';
+          popupTitle.innerText = 'Admin';
+          popupMessage.innerText = 'Error updating entry: ' + error.message;
+          popup.style.display = 'block';
+          document.getElementById('historyToggleBtn').style.display = 'none';
+        })
+        .updateEntry(uniqueId, formData);
+    } else {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          loader.style.display = 'none';
+          popup.className = 'popup success';
+          popupTitle.innerText = 'Success!';
+          popupMessage.innerText = 'Entry Added Successfully!';
+          popup.style.display = 'block';
+          document.getElementById('historyToggleBtn').style.display = 'none';
+          document.getElementById('myForm').reset();
+          toggleForm();
+          fetchData(true);
+        })
+        .withFailureHandler(function(error) {
+          loader.style.display = 'none';
+          popup.className = 'popup error';
+          popupTitle.innerText = 'Admin';
+          popupMessage.innerText = 'Error submitting complaint: ' + error.message;
+          popup.style.display = 'block';
+          document.getElementById('historyToggleBtn').style.display = 'none';
+        })
+        .submitForm(formData);
+    }
+  }
+
+  function updateRowsPerPage() {
+    const input = document.getElementById('rowsPerPage');
+    const value = parseInt(input.value);
+    if (value > 0) {
+      rowsPerPage = value;
+      currentPage = 1;
+      fetchData(true);
+    } else {
+      input.value = rowsPerPage;
+    }
+  }
+
+  function fetchData(showLoader = false) {
+    if (!isLoggedIn) return;
+    const loader = document.getElementById('loader');
+    if (showLoader) loader.style.display = 'block';
+
+    const rowsToFetch = currentPage === 'all' ? totalRows : rowsPerPage;
+    const pageToFetch = currentPage === 'all' ? 1 : currentPage;
+
+    google.script.run
+      .withSuccessHandler(function(response) {
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(response);
+        } catch (e) {
+          console.error('Failed to parse response:', e);
+          const tbody = document.getElementById('dataTableBody');
+          tbody.innerHTML = `<tr><td colspan="21">Admin parsing data: ${e.message}</td></tr>`;
+          if (showLoader) loader.style.display = 'none';
+          return;
+        }
+
+        const { headers, data, totalRows: total } = parsedResponse;
+        totalRows = total || 0;
+        totalPages = Math.ceil(totalRows / rowsPerPage);
+        const tbody = document.getElementById('dataTableBody');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="21">No data available</td></tr>';
+        } else {
+          data.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            const uniqueId = row[1] || '';
+            const creationDate = row[2] ? new Date(row[2]) : new Date();
+            tr.dataset.uniqueId = uniqueId;
+            tr.dataset.timestamp = creationDate.getTime();
+
+            const cells = [
+              parseDateTime(row[0]) || '',
+              uniqueId,
+              parseDate(row[2]) || '',
+              row[3] || '',
+              row[4] || '',
+              row[5] || '',
+              row[6] || '',
+              row[7] || '',
+              row[8] || '',
+              row[9] || '',
+              row[10] || '',
+              row[11] || '',
+              row[12] || '',
+              row[13] || '',
+              row[14] || '',
+              generateWhatsAppLink(row[9], uniqueId, row[4], row[2], row[5], row[6], row[7], row[8], row[10], row[13]),
+              parseDateTime(row[15]) || '',
+              row[16] || '',
+              row[17] || '',
+              generateFeedbackWhatsAppLink(row[9], uniqueId, row[4], row[2], row[5], row[6], row[7], row[8], row[10], row[13]),
+              ''
+            ];
+
+            cells.forEach((content, cellIndex) => {
+              const td = document.createElement('td');
+              const cellKey = `${(pageToFetch - 1) * rowsPerPage + rowIndex}:${cellIndex}`;
+              const isExpanded = expandedCells.has(cellKey);
+
+              if (cellIndex === 15 || cellIndex === 19) {
+                td.innerHTML = content;
+              } else if (cellIndex === 20) {
+                if (currentUser === 'Admin') {
+                  td.innerHTML = `
+                    <div class="action-row">
+                      <button class="action-btn view" onclick="viewEntry('${uniqueId}')"><i class="material-icons">visibility</i></button>
+                      <button class="action-btn edit" onclick="showPasswordPopup('edit', '${uniqueId}')"><i class="material-icons">edit</i></button>
+                      <button class="action-btn delete" onclick="showPasswordPopup('delete', '${uniqueId}')"><i class="material-icons">delete</i></button>
+                    </div>
+                  `;
+                } else if (SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+                  td.innerHTML = `
+                    <div class="action-row">
+                      <button class="action-btn view" onclick="viewEntry('${uniqueId}')"><i class="material-icons">visibility</i></button>
+                      <button class="action-btn edit" onclick="showPasswordPopup('edit', '${uniqueId}')"><i class="material-icons">edit</i></button>
+                    </div>
+                  `;
+                } else {
+                  td.innerHTML = `
+                    <div class="action-row">
+                      <button class="action-btn view" onclick="viewEntry('${uniqueId}')"><i class="material-icons">visibility</i></button>
+                    </div>
+                  `;
+                }
+              } else if (content.length > 50 && cellIndex !== 19) {
+                if (isExpanded) {
+                  td.innerHTML = `${content} <span class="read-more" onclick="toggleReadMore(this, ${(pageToFetch - 1) * rowsPerPage + rowIndex}, ${cellIndex})">Read Less</span>`;
+                  td.style.maxHeight = 'none';
+                  td.style.overflow = 'visible';
+                } else {
+                  td.innerHTML = `
+                    <span class="truncate">${content}</span>
+                    <span class="read-more" onclick="toggleReadMore(this, ${(pageToFetch - 1) * rowsPerPage + rowIndex}, ${cellIndex})">Read More</span>
+                  `;
+                }
+              } else {
+                td.innerHTML = content;
+              }
+              tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+          });
+        }
+
+        applySortAndFilter();
+        updatePagination();
+        updateHeaderUser();
+        adjustStickyColumns();
+        if (showLoader) loader.style.display = 'none';
+      })
+      .withFailureHandler(function(error) {
+        console.error('Error fetching data:', error);
+        const tbody = document.getElementById('dataTableBody');
+        tbody.innerHTML = `<tr><td colspan="21">Admin loading data: ${error.message}</td></tr>`;
+        if (showLoader) loader.style.display = 'none';
+      })
+      .getSheetData(pageToFetch, rowsToFetch);
+  }
+
+  function editCell(td, uniqueId, cellIndex) {
+    if (!SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+      showPopup('Admin', 'You do not have permission to edit entries.');
+      return;
+    }
+    if (td.classList.contains('editing')) return;
+
+    const originalValue = td.dataset.original || '';
+    td.classList.add('editing');
+    const input = document.createElement('input');
+    input.type = cellIndex === 18 ? 'number' : 'text';
+    input.value = originalValue;
+    if (cellIndex === 18) {
+      input.min = 1;
+      input.max = 5;
+      input.step = 1;
+    }
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+
+    input.onblur = () => saveCell(uniqueId, cellIndex, input.value, td);
+    input.onkeypress = (e) => {
+      if (e.key === 'Enter') saveCell(uniqueId, cellIndex, input.value, td);
+    };
+  }
+
+  function saveCell(uniqueId, cellIndex, newValue, td) {
+    const field = cellIndex === 17 ? 'actual' : cellIndex === 18 ? 'rating' : 'comments';
+    const formData = { [field]: newValue, submittedBy: currentUser };
+
+    google.script.run
+      .withSuccessHandler(() => {
+        td.dataset.original = newValue;
+        td.innerHTML = newValue || 'Click to edit';
+        td.classList.remove('editing');
+        fetchData(false);
+      })
+      .withFailureHandler((error) => {
+        alert('Admin updating: ' + error.message);
+        td.innerHTML = td.dataset.original || 'Click to edit';
+        td.classList.remove('editing');
+      })
+      .updateEntry(uniqueId, formData);
+  }
+
+  function toggleReadMore(element, rowIndex, cellIndex) {
+    if (!isLoggedIn) return;
+    const td = element.parentElement;
+    const truncateSpan = td.querySelector('.truncate');
+    const cellKey = `${rowIndex}:${cellIndex}`;
+
+    if (truncateSpan && truncateSpan.style.display !== 'none') {
+      truncateSpan.style.display = 'none';
+      element.textContent = 'Read Less';
+      td.textContent = truncateSpan.textContent;
+      td.style.maxHeight = 'none';
+      td.style.overflow = 'visible';
+      const readMoreSpan = document.createElement('span');
+      readMoreSpan.className = 'read-more';
+      readMoreSpan.textContent = 'Read Less';
+      readMoreSpan.onclick = () => toggleReadMore(readMoreSpan, rowIndex, cellIndex);
+      td.appendChild(readMoreSpan);
+      expandedCells.set(cellKey, true);
+    } else {
+      td.innerHTML = `
+        <span class="truncate">${td.textContent}</span>
+        <span class="read-more" onclick="toggleReadMore(this, ${rowIndex}, ${cellIndex})">Read More</span>
+      `;
+      td.style.maxHeight = '50px';
+      td.style.overflow = 'hidden';
+      expandedCells.delete(cellKey);
+    }
+  }
+
+  function sortTable(column, order) {
+    if (!isLoggedIn || column !== 'unique') return;
+    currentSortColumn = column;
+    currentSortOrder = order;
+
+    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+    if (order === 'asc') {
+      document.getElementById('sortUniqueAscBtn').classList.add('active');
+    } else {
+      document.getElementById('sortUniqueDescBtn').classList.add('active');
+    }
+
+    fetchData(true);
+  }
+
+  function applySortAndFilter() {
+    const tbody = document.getElementById('dataTableBody');
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+    rows.sort((a, b) => {
+      const valueA = a.cells[1].textContent.trim();
+      const valueB = b.cells[1].textContent.trim();
+      return currentSortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+    });
+
+    searchQuery = document.getElementById('searchInput').value.toLowerCase();
+    rows.forEach(row => {
+      const rowText = row.textContent.toLowerCase();
+      row.style.display = rowText.includes(searchQuery) ? '' : 'none';
+      tbody.appendChild(row);
+    });
+  }
+
+  const debouncedFilterTable = debounce(applySortAndFilter, 300);
+
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  function updatePagination() {
+    const pageSelect = document.getElementById('pageSelect');
+    pageSelect.innerHTML = '<option value="">Select Page</option>';
+
+    for (let i = 1; i <= totalPages; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `Page ${i}`;
+      if (i === currentPage) option.selected = true;
+      pageSelect.appendChild(option);
+    }
+
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = 'All Pages';
+    if (currentPage === 'all') allOption.selected = true;
+    pageSelect.appendChild(allOption);
+  }
+
+  function goToPage(page) {
+    if (!isLoggedIn) return;
+    currentPage = page === 'all' ? 'all' : parseInt(page);
+    fetchData(true);
+  }
+
+  function closePopup() {
+    document.getElementById('submissionPopup').style.display = 'none';
+    document.getElementById('historySection').style.display = 'none';
+    document.getElementById('historyToggleBtn').innerText = 'Show History';
+    document.getElementById('historyToggleBtn').style.display = 'none';
+  }
+
+  function updateDateTime() {
+    if (!isLoggedIn) return;
+    const now = new Date();
+    document.getElementById('currentDateTime').textContent = formatDateTime(now);
+  }
+
+  function updateHeaderUser() {
+    if (!isLoggedIn) return;
+    document.getElementById('currentUser').textContent = `User Id: ${currentUser}`;
+  }
+
+  function viewEntry(uniqueId) {
+    if (!isLoggedIn) return;
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+    currentUniqueId = uniqueId;
+
+    google.script.run
+      .withSuccessHandler(function(data) {
+        loader.style.display = 'none';
+        let parsedData = data;
+        if (typeof data === 'string') {
+          try {
+            parsedData = JSON.parse(data);
+          } catch (e) {
+            showPopup('Admin', 'Failed to parse entry data: ' + e.message);
+            return;
+          }
+        }
+
+        if (parsedData && typeof parsedData === 'object' && parsedData['UNIQUE_ID']) {
+          showPopup('View Entry', formatEntryData(parsedData));
+          document.getElementById('historyToggleBtn').style.display = 'block';
+        } else {
+          showPopup('Admin', 'No data found for this entry.');
+        }
+      })
+      .withFailureHandler(function(error) {
+        loader.style.display = 'none';
+        showPopup('Admin', 'Failed to fetch entry: ' + error.message);
+      })
+      .getEntryByUniqueId(uniqueId);
+  }
+
+  function toggleHistory() {
+    const historySection = document.getElementById('historySection');
+    const toggleButton = document.getElementById('historyToggleBtn');
+
+    if (historySection.style.display === 'none' || historySection.style.display === '') {
+      fetchHistory(currentUniqueId);
+      historySection.style.display = 'block';
+      historySection.style.opacity = '1';
+      historySection.style.filter = 'none';
+      toggleButton.innerText = 'Hide History';
+    } else {
+      historySection.style.display = 'none';
+      toggleButton.innerText = 'Show History';
+    }
+  }
+
+  function fetchHistory(uniqueId) {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    google.script.run
+      .withSuccessHandler(function(response) {
+        loader.style.display = 'none';
+        let historyData = response;
+        if (typeof response === 'string') {
+          try {
+            historyData = JSON.parse(response);
+          } catch (e) {
+            displayHistory('Admin fetching history data: ' + e.message);
+            return;
+          }
+        }
+        
+        displayHistory(historyData);
+      })
+      .withFailureHandler(function(error) {
+        loader.style.display = 'none';
+        displayHistory('Admin to fetch history: ' + error.message);
+      })
+      .getEditHistory(uniqueId);
+  }
+
+  function displayHistory(historyData) {
+    const historyContent = document.getElementById('historyContent');
+    historyContent.innerHTML = '';
+
+    if (!historyData || historyData.length === 0) {
+      historyContent.innerHTML = '<p style="color: #666; font-style: italic; font-size: 0.9em;">No edit history available.</p>';
+      return;
+    }
+
+    if (typeof historyData === 'string') {
+      historyContent.innerHTML = `<p style="color: #666; font-style: italic; font-size: 0.9em;">${historyData}</p>`;
+      return;
+    }
+
+    historyData.forEach((entry, index) => {
+      const p = document.createElement('p');
+      p.style.cssText = 'color: #444; font-size: 0.9em; line-height: 1.5; margin: 8px 0;';
+      p.innerHTML = `<strong>Edit ${index + 1}:</strong> ${entry.timestamp || 'N/A'} by ${entry.user || 'Unknown'}<br>` +
+                    `<span style="padding-left: 20px;">Changes: ${entry.changes || 'No changes recorded'}</span>`;
+      historyContent.appendChild(p);
+    });
+  }
+
+  function showPasswordPopup(action, uniqueId) {
+    if (!isLoggedIn || !SUBMIT_ALLOWED_USERS.includes(currentUser)) {
+      showPopup('Admin', 'You do not have permission to edit or delete entries.');
+      return;
+    }
+
+    // Restrict delete to Admin only
+    if (action === 'delete' && currentUser !== 'Admin') {
+      showPopup('Admin', 'Only Admin can delete entries.');
+      return;
+    }
+
+    const popup = document.getElementById('passwordPopup');
+    const title = document.getElementById('passwordPopupTitle');
+    document.getElementById('passwordInput').value = '';
+    title.innerText = `Enter Admin Password to ${action === 'edit' ? 'Edit' : 'Delete'} Entry`;
+    popup.style.display = 'block';
+
+    passwordCallback = (password) => {
+      if (currentUser === 'Sonu' && password !== 'ekkaa@123') {
+        showPopup('Admin', 'Sonu must use correct password');
+        return;
+      }
+      if (currentUser === 'Abhinandan' && password !== 'noida@123') {
+        showPopup('Admin', 'Abhinandan must use correct password');
+        return;
+      }
+      if (currentUser === 'Admin' && !ADMIN_PASSWORDS.includes(password)) {
+        showPopup('Admin', 'Incorrect password for Admin');
+        return;
+      }
+
+      if (action === 'edit') {
+        google.script.run
+          .withSuccessHandler((e) => {
+            let data = JSON.parse(e);
+            const entryLocation = (data['LOCATION'] || data['Location'] || '').toLowerCase();
+            if (currentUser === 'Sonu' && entryLocation !== 'kundli') {
+              showPopup('Admin', 'Sonu can only edit Kundli location entries');
+            } else if (currentUser === 'Abhinandan' && entryLocation !== 'noida') {
+              showPopup('Admin', 'Abhinandan can only edit Noida location entries');
+            } else {
+              proceedWithEdit(uniqueId);
+            }
+          })
+          .withFailureHandler((error) => {
+            showPopup('Admin', 'Failed to fetch entry: ' + error.message);
+          })
+          .getEntryByUniqueId(uniqueId);
+      } else if (action === 'delete' && currentUser === 'Admin') {
+        proceedWithDelete(uniqueId);
+      }
+    };
+  }
+
+  function closePasswordPopup() {
+    document.getElementById('passwordPopup').style.display = 'none';
+    passwordCallback = null;
+  }
+
+  function verifyPassword() {
+    const password = document.getElementById('passwordInput').value;
+    console.log('Verifying Password:', password);
+    if (passwordCallback) {
+      passwordCallback(password);
+      closePasswordPopup();
+    }
+  }
+
+  function proceedWithEdit(uniqueId) {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    google.script.run
+      .withSuccessHandler((e) => {
+        let data = JSON.parse(e);
+        loader.style.display = 'none';
+        if (data['UNIQUE_ID']) {
+          const entryLocation = (data['LOCATION'] || data['Location'] || '').toLowerCase();
+          if (currentUser === 'Sonu' && entryLocation !== 'kundli') {
+            showPopup('Admin', 'Sonu can only edit Kundli location entries');
+            return;
+          }
+          if (currentUser === 'Abhinandan' && entryLocation !== 'noida') {
+            showPopup('Admin', 'Abhinandan can only edit Noida location entries');
+            return;
+          }
+          toggleForm();
+          populateFormForEdit(data, uniqueId);
+        } else {
+          showPopup('Admin', 'No data found for this entry.');
+        }
+      })
+      .withFailureHandler(function(error) {
+        loader.style.display = 'none';
+        showPopup('Admin', 'Failed to fetch entry: ' + error.message);
+      })
+      .getEntryByUniqueId(uniqueId);
+  }
+
+  function proceedWithDelete(uniqueId) {
+    if (!confirm('Are you sure you want to delete this entry?')) return;
+
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    google.script.run
+      .withSuccessHandler(function(response) {
+        loader.style.display = 'none';
+        if (response) {
+          showPopup('Success', 'Entry deleted successfully.');
+          fetchData(true);
+        } else {
+          showPopup('Admin', 'Failed to delete entry.');
+        }
+      })
+      .withFailureHandler(function(error) {
+        loader.style.display = 'none';
+        showPopup('Admin', 'Failed to delete entry: ' + error.message);
+      })
+      .deleteEntryByUniqueId(uniqueId);
+  }
+
+  function populateFormForEdit(data, uniqueId) {
+    console.log('Raw Creation Date:', data['CREATION_DATE'] || data['Creation Date']);
+    const formattedDate = formatToISO(data['CREATION_DATE'] || data['Creation Date'] || '');
+    console.log('Formatted Creation Date:', formattedDate);
+    document.getElementById('creationDate').value = formattedDate;
+    document.getElementById('location').value = data['LOCATION'] || data['Location'] || '';
+    document.getElementById('partyName').value = data['PARTY_NAME'] || data['Party Name'] || '';
+    document.getElementById('contactPerson').value = data['CONTACT_PERSON'] || data['Contact Person'] || '';
+    document.getElementById('modelNo').value = data['MODEL_NO'] || data['Model No'] || data['modelNo'] || data['model_no'] || '';
+    document.getElementById('complaint').value = data['COMPLAINT'] || data['Complaint'] || '';
+    document.getElementById('serialNumber').value = data['SERIAL_NUMBER'] || data['Serial Number'] || data['serialNo'] || data['serial_number'] || '';
+    document.getElementById('mobileNo').value = data['MOBILE_NO'] || data['Mobile No'] || data['mobileNo'] || data['mobile_no'] || '';
+    document.getElementById('actionTaken').value = data['ACTION_TAKEN'] || data['Action Taken'] || '';
+    document.getElementById('additionalWork').value = data['ADDITIONAL_WORK'] || data['Additional Work'] || '';
+    document.getElementById('closedWhatsApp').value = data['CLOSED_WHATSAPP'] || data['Closed WhatsApp'] || '';
+    document.getElementById('performedBy').value = data['PERFORMED_BY'] || data['Performed By'] || '';
+
+    document.getElementById('myForm').dataset.uniqueId = uniqueId;
+  }
+
+  function formatEntryData(data) {
+    let output = '<div style="font-size: 1em; color: #333; line-height: 1.6;">';
+    output += '<strong>Entry Details:</strong><br><br>';
+    for (const [key, value] of Object.entries(data)) {
+      if (key === 'DATE_TIME' || key === 'Date Time' || key === 'ACTUAL' || key === 'Actual') {
+        output += `<strong>${key}:</strong> ${value ? parseDateTime(value) : 'N/A'}<br>`;
+      } else if (key === 'CREATION_DATE' || key === 'Creation Date') {
+        output += `<strong>${key}:</strong> ${value ? parseDate(value) : 'N/A'}<br>`;
+      } else {
+        output += `<strong>${key}:</strong> ${value || 'N/A'}<br>`;
+      }
+    }
+    output += '</div>';
+    return output;
+  }
+
+  function showPopup(title, message) {
+    const popup = document.getElementById('submissionPopup');
+    const popupTitle = document.getElementById('popupTitle');
+    const popupMessage = document.getElementById('popupMessage');
+    
+    popupTitle.innerText = title;
+    popupMessage.innerHTML = message;
+    popup.className = title === 'Success' || title === 'View Entry' ? 'popup success' : 'popup error';
+    popup.style.display = 'block';
+    popup.style.filter = 'none';
+    popup.style.opacity = '1';
+    
+    document.getElementById('historySection').style.display = 'none';
+    document.getElementById('historyToggleBtn').innerText = 'Show History';
+    if (title === 'View Entry') {
+      document.getElementById('historyToggleBtn').style.display = 'block';
+    } else {
+      document.getElementById('historyToggleBtn').style.display = 'none';
+    }
+  }
+
+  function adjustStickyColumns() {
+    const dateTimeCells = document.querySelectorAll('.data-container th:nth-child(1), .data-container td:nth-child(1)');
+    const uniqueIdCells = document.querySelectorAll('.data-container th:nth-child(2), .data-container td:nth-child(2)');
+    const dateTimeHeader = document.querySelector('.data-container th:nth-child(1)');
+    
+    if (dateTimeHeader) {
+      const dateTimeWidth = dateTimeHeader.getBoundingClientRect().width;
+      uniqueIdCells.forEach(cell => {
+        cell.style.left = `${dateTimeWidth}px`;
+      });
+    }
+  }
+
+  function handleScroll() {
+    const header = document.querySelector('.header-container');
+    const filter = document.querySelector('.filter-container');
+    const filterGroup = document.querySelector('.filter-group');
+    const userInfo = document.querySelector('.user-info');
+    const dataContainer = document.querySelector('.data-container');
+    if (dataContainer && header && filter && filterGroup && userInfo) {
+      const scrollTop = dataContainer.scrollTop;
+      if (scrollTop > 0) {
+        header.classList.add('scrolled');
+        filter.classList.add('scrolled');
+        filterGroup.classList.add('scrolled');
+        userInfo.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+        filter.classList.remove('scrolled');
+        filterGroup.classList.remove('scrolled');
+        userInfo.classList.remove('scrolled');
+      }
+    }
+  }
+
+  window.onload = function() {
+    document.getElementById('sortUniqueDescBtn').classList.add('active');
+    setInterval(() => fetchData(false), 1000);
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    window.addEventListener('resize', () => requestAnimationFrame(adjustStickyColumns));
+    const dataContainer = document.querySelector('.data-container');
+    if (dataContainer) {
+      dataContainer.addEventListener('scroll', () => requestAnimationFrame(handleScroll));
+    }
+    window.addEventListener('scroll', () => requestAnimationFrame(adjustStickyColumns));
+    adjustStickyColumns();
+  };
+</script>
