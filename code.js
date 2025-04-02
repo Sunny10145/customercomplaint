@@ -1,87 +1,82 @@
-function doGet(e) {
-  return HtmlService.createHtmlOutputFromFile('form')
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-}
+const express = require('express');
+const { google } = require('googleapis');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+const app = express();
 
-// Replace this with your Google Drive folder ID
+app.use(express.json());
+
+// Google API credentials (Service Account se lena hoga)
+const auth = new google.auth.GoogleAuth({
+  keyFile: './credentials.json', // Aapka service account key file
+  scopes: [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+  ]
+});
+
+const sheets = google.sheets({ version: 'v4', auth });
+const drive = google.drive({ version: 'v3', auth });
+
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // Aapka Google Sheet ID
 const FOLDER_ID = '1uhnARKvGDVAVohSP4UEi_J1yyam5B4gV';
 
-function submitForm(formData) {
+// Form submission handler
+app.post('/submit', upload.fields([{ name: 'fileUpload1' }, { name: 'fileUpload2' }]), async (req, res) => {
   try {
-    // Get the active spreadsheet
-    var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    if (!spreadsheet) {
-      throw new Error('No active spreadsheet found');
+    const { complaintDate, location, partyName, contactPerson, modelNo, complaint, serialNo, customerMobile } = req.body;
+    const files = req.files;
+    const currentDateTime = new Date();
+
+    // Upload files to Google Drive
+    let fileUrl1 = '', fileUrl2 = '';
+    if (files.fileUpload1) {
+      const fileMetadata = {
+        name: files.fileUpload1[0].originalname || `File1_${currentDateTime.toISOString()}`,
+        parents: [FOLDER_ID]
+      };
+      const media = { mimeType: files.fileUpload1[0].mimetype, body: files.fileUpload1[0].buffer };
+      const file = await drive.files.create({ resource: fileMetadata, media });
+      fileUrl1 = `https://drive.google.com/file/d/${file.data.id}/view`;
+    }
+    if (files.fileUpload2) {
+      const fileMetadata = {
+        name: files.fileUpload2[0].originalname || `File2_${currentDateTime.toISOString()}`,
+        parents: [FOLDER_ID]
+      };
+      const media = { mimeType: files.fileUpload2[0].mimetype, body: files.fileUpload2[0].buffer };
+      const file = await drive.files.create({ resource: fileMetadata, media });
+      fileUrl2 = `https://drive.google.com/file/d/${file.data.id}/view`;
     }
 
-    // Get or create Sheet4
-    var sheet = spreadsheet.getSheetByName('Sheet4');
-    if (!sheet) {
-      sheet = spreadsheet.insertSheet('Sheet4');
-      Logger.log('Sheet4 created because it didn’t exist');
-    }
-
-    // Get the folder where files will be uploaded
-    var folder = DriveApp.getFolderById(FOLDER_ID);
-    if (!folder) {
-      throw new Error('Folder not found');
-    }
-
-    // Get the last row and determine the next row (starting at A2)
-    var lastRow = sheet.getLastRow();
-    var nextRow = lastRow >= 1 ? lastRow + 1 : 2;
-    var currentdatetime = new Date();
-
-    // Upload files and get their URLs if files are provided
-    var fileUrl1 = '';
-    var fileUrl2 = '';
-    
-    if (formData.fileUpload1) {
-      var fileBlob1 = Utilities.newBlob(
-        Utilities.base64Decode(formData.fileUpload1.split(',')[1]), // Remove "data:*/*;base64," prefix
-        formData.fileUpload1MimeType || 'application/octet-stream',
-        formData.fileUpload1Name || 'File1_' + currentdatetime.toISOString()
-      );
-      var uploadedFile1 = folder.createFile(fileBlob1);
-      fileUrl1 = uploadedFile1.getUrl();
-    }
-
-    if (formData.fileUpload2) {
-      var fileBlob2 = Utilities.newBlob(
-        Utilities.base64Decode(formData.fileUpload2.split(',')[1]),
-        formData.fileUpload2MimeType || 'application/octet-stream',
-        formData.fileUpload2Name || 'File2_' + currentdatetime.toISOString()
-      );
-      var uploadedFile2 = folder.createFile(fileBlob2);
-      fileUrl2 = uploadedFile2.getUrl();
-    }
-
-    // Prepare data for the spreadsheet (columns A to K)
-    var data = [
+    // Append data to Google Sheets
+    const values = [
       [
-        currentdatetime || '',
-        formData.complaintDate || '',
-        formData.location || '',
-        formData.partyName || '',
-        formData.contactPerson || '',
-        formData.modelNo || '',
-        formData.complaint || '',
-        formData.serialNo || '',
-        formData.customerMobile || '',
-        fileUrl1 || '',
-        fileUrl2 || ''
+        currentDateTime.toISOString(),
+        complaintDate || '',
+        location || '',
+        partyName || '',
+        contactPerson || '',
+        modelNo || '',
+        complaint || '',
+        serialNo || '',
+        customerMobile || '',
+        fileUrl1,
+        fileUrl2
       ]
     ];
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Sheet4!A2:K',
+      valueInputOption: 'RAW',
+      resource: { values }
+    });
 
-    // Log the data for debugging
-    Logger.log('Storing data in Sheet4, row ' + nextRow + ': ' + JSON.stringify(data));
-
-    // Write data to Sheet4 starting at A2 (columns A to K)
-    sheet.getRange(nextRow, 1, 1, 11).setValues(data);
-    return true; // Indicate success
+    res.json({ success: true });
   } catch (error) {
-    Logger.log('Error in submitForm: ' + error.toString());
-    throw new Error('Submission failed: ' + error.message);
+    console.error('Error:', error);
+    res.status(500).json({ error: error.message });
   }
-}
+});
+
+module.exports = app;
