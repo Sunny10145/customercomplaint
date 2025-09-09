@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Complaint System</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <!-- Login Container -->
+  <div id="loginContainer" style="display: flex;">
+    <div class="login-box">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="contentWrapper" style="display: none; flex-direction: column;">
+    <div class="header-container">
+      <h1>TV Customer Complaint System</h1>
+      <div class="user-info">
+        <span id="currentUser">User Id: </span>
+        <span id="currentDateTime"></span>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="filter-container">
+      <div class="filter-group">
+        <input type="text" id="searchInput" placeholder="Search..." oninput="debouncedFilterTable()">
+        <button id="sortUniqueAscBtn" class="sort-btn" onclick="sortTable('unique', 'asc')">Sort Asc</button>
+        <button id="sortUniqueDescBtn" class="sort-btn" onclick="sortTable('unique', 'desc')">Sort Desc</button>
+        <select id="pageSelect" onchange="goToPage(this.value)"></select>
+        <input type="number" id="rowsPerPage" value="100" onchange="updateRowsPerPage()">
+        <button id="toggleFormBtn" onclick="toggleForm()">Add Entry</button>
+        <button onclick="showSummaryPopup()">Show Summary</button>
+        <button onclick="downloadExcel()">Download Excel</button>
+        <button onclick="refreshPage()">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-container">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Date Time</th>
+            <th>Unique ID</th>
+            <th>Creation Date</th>
+            <th>Location</th>
+            <th>Party Name</th>
+            <th>Contact Person</th>
+            <th>Model No</th>
+            <th>Complaint</th>
+            <th>Serial Number</th>
+            <th>Mobile No</th>
+            <th>Action Taken</th>
+            <th>Additional Work</th>
+            <th>Closed WhatsApp</th>
+            <th>Performed By</th>
+            <th>Entry By</th>
+            <th>Assign To</th>
+            <th>Department</th>
+            <th>Attachment</th>
+            <th>Sent WhatsApp</th>
+            <th>Actual</th>
+            <th>Rating</th>
+            <th>Comments</th>
+            <th>Feedback Form</th>
+            <th>Modify</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Form Container -->
+    <div id="formContainer">
+      <form id="myForm">
+        <input type="date" id="creationDate" required>
+        <select id="location" required>
+          <option value="">Select Location</option>
+          <option value="Kundli">Kundli</option>
+          <option value="Noida">Noida</option>
+        </select>
+        <input type="text" id="partyName" placeholder="Party Name" required>
+        <div id="partyNameSuggestions" class="suggestions"></div>
+        <input type="text" id="contactPerson" placeholder="Contact Person" required>
+        <div id="contactPersonSuggestions" class="suggestions"></div>
+        <input type="text" id="modelNo" placeholder="Model No" required>
+        <div id="modelNoSuggestions" class="suggestions"></div>
+        <input type="text" id="complaint" placeholder="Complaint" required>
+        <div id="complaintSuggestions" class="suggestions"></div>
+        <input type="text" id="serialNumber" placeholder="Serial Number">
+        <div id="serialNumberSuggestions" class="suggestions"></div>
+        <input type="text" id="mobileNo" placeholder="Mobile No" required>
+        <div id="mobileNoSuggestions" class="suggestions"></div>
+        <input type="text" id="actionTaken" placeholder="Action Taken">
+        <div id="actionTakenSuggestions" class="suggestions"></div>
+        <select id="closedWhatsApp" required>
+          <option value="">Select Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Closed">Closed</option>
+        </select>
+        <input type="text" id="performedBy" placeholder="Performed By" required>
+        <input type="file" id="uploadFile" multiple accept=".pdf,.jpg,.jpeg,.png">
+        <input type="hidden" id="existingAttachments">
+        <div id="attachmentPreview"><p>No attachments</p></div>
+        <button type="button" id="nextFormBtn" onclick="showNextForm()">Next</button>
+        <button type="submit" id="submitFormBtn" onclick="submitFormHandler(event)">Submit</button>
+
+        <!-- Next Form Section -->
+        <div id="nextFormSection" style="display: none;">
+          <input type="text" id="assignToPerson" placeholder="Assign To Person">
+          <div id="assignToPersonSuggestions" class="suggestions"></div>
+          <input type="text" id="department" placeholder="Department">
+          <div id="departmentSuggestions" class="suggestions"></div>
+          <button type="button" onclick="cancelNextForm()">Cancel</button>
+          <button type="button" onclick="submitNextForm()">Submit</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Popups -->
+    <div id="submissionPopup" class="popup" style="display: none;">
+      <h2 id="popupTitle"></h2>
+      <div id="popupMessage"></div>
+      <button id="historyToggleBtn" style="display: none;" onclick="toggleHistory()">Show History</button>
+      <div id="historySection" style="display: none;">
+        <div id="historyContent"></div>
+      </div>
+      <button onclick="closePopup()">Close</button>
+    </div>
+
+    <div id="passwordPopup" style="display: none;">
+      <h2 id="passwordPopupTitle"></h2>
+      <input type="password" id="passwordInput" placeholder="Enter Admin Password">
+      <button onclick="verifyPassword()">Submit</button>
+      <button onclick="closePasswordPopup()">Cancel</button>
+    </div>
+
+    <div id="summaryPopup" style="display: none;">
+      <h2>Summary</h2>
+      <label>Start Date: <input type="date" id="startDate" onchange="applySummaryFilter()"></label>
+      <label>End Date: <input type="date" id="endDate" onchange="applySummaryFilter()"></label>
+      <label>Closed WhatsApp:
+        <select id="closedWhatsAppFilter" onchange="applySummaryFilter()">
+          <option value="">All</option>
+          <option value="pending">Pending</option>
+          <option value="closed">Closed</option>
+        </select>
+      </label>
+      <label>Location:
+        <select id="locationFilter" onchange="applySummaryFilter()">
+          <option value="">All</option>
+          <option value="kundli">Kundli</option>
+          <option value="noida">Noida</option>
+        </select>
+      </label>
+      <label>Customer Response:
+        <select id="responseFilter" onchange="applySummaryFilter()">
+          <option value="">All</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+      <p>Total Entries: <span id="totalEntries">0 (100%)</span></p>
+      <p>Pending Entries: <span id="pendingEntries">0 (0%)</span></p>
+      <p>Closed Entries: <span id="closedEntries">0 (0%)</span></p>
+      <p>Response Entries: <span id="responseEntries">0 (0%)</span></p>
+      <p>No Response Entries: <span id="noResponseEntries">0 (0%)</span></p>
+      <button onclick="viewFilteredEntries()">View Filtered Entries</button>
+      <button onclick="closeSummaryPopup()">Close</button>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" style="display: none;">Loading...</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="/src/script.js"></script>
+</body>
+</html>
